@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Age Calculator ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg1: #0f1021;  /* deep indigo */
+      --bg2: #1b1d3a;  /* space blue */
+      --acc1: #7c3aed; /* violet */
+      --acc2: #06b6d4; /* cyan */
+      --acc3: #22c55e; /* green */
+      --text: #f3f4f6; /* near white */
+      --muted: #a7a9be; /* muted */
+      --card: rgba(255,255,255,.08);
+      --glass: rgba(255,255,255,.12);
+      --blur: saturate(140%) blur(12px);
+      --radius: 24px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box }
+    html, body { height: 100% }
+    body {
+      margin: 0;
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% 10%, #2e1065 0%, transparent 60%),
+        radial-gradient(1000px 600px at 90% 30%, #0ea5e9 0%, transparent 60%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      width: min(100%, 1100px);
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    header .logo {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--acc1), var(--acc2));
+      box-shadow: var(--shadow);
+      display: grid; place-items: center;
+      font-size: 28px;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{ transform: translateY(0)} 50%{ transform: translateY(-6px)} }
+
+    h1 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; letter-spacing: 0.5px }
+    .subtitle { color: var(--muted); margin-top: 6px; font-weight: 400 }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      grid-column: span 12;
+      background: linear-gradient(180deg, var(--glass), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 2.5vw, 28px);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .card::before {
+      content: ""; position: absolute; inset: -2px;
+      background: conic-gradient(from 140deg, transparent, rgba(124,58,237,.45), rgba(6,182,212,.45), transparent 70%);
+      filter: blur(28px); opacity: .35; z-index: -1;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end }
+
+    label { font-weight: 600; letter-spacing: .2px }
+
+    input[type="date"], select {
+      width: 100%;
+      appearance: none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 14px 16px;
+      border-radius: 14px;
+      outline: none;
+      transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+    }
+    input[type="date"]:focus { box-shadow: 0 0 0 3px rgba(124,58,237,.35); background: rgba(255,255,255,.12) }
+
+    button {
+      appearance: none; border: none; cursor: pointer;
+      background: linear-gradient(135deg, var(--acc1), var(--acc2));
+      color: white; font-weight: 700; letter-spacing: .3px;
+      padding: 14px 18px; border-radius: 14px; box-shadow: var(--shadow);
+      transition: transform .08s ease, filter .2s ease;
+    }
+    button:hover { filter: brightness(1.08) }
+    button:active { transform: translateY(1px) }
+
+    .stats { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; margin-top: 18px }
+    .stat {
+      grid-column: span 12;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px; padding: 16px; position: relative; overflow: hidden;
+    }
+    .stat h3 { margin: 0 0 6px; font-size: 0.95rem; color: var(--muted); font-weight: 600 }
+    .value { font-size: clamp(1.3rem, 3.5vw, 2rem); font-weight: 700 }
+
+    /* Responsive columns */
+    @media (min-width: 720px) {
+      .card { grid-column: span 7 }
+      .aside { grid-column: span 5 }
+      .stat { grid-column: span 6 }
+    }
+
+    /* Sparkle accents */
+    .sparkle { position: absolute; pointer-events: none; inset: 0; overflow: hidden }
+    .sparkle span {
+      position: absolute; width: 6px; height: 6px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.1));
+      animation: drift 6s linear infinite;
+      opacity: .6;
+    }
+    @keyframes drift { from { transform: translateY(100vh) } to { transform: translateY(-10vh) } }
+
+    /* Footer */
+    footer { text-align: center; color: var(--muted); margin-top: 22px; font-size: .9rem }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12)
+    }
+    .note { font-size: .85rem; color: var(--muted); margin-top: 10px }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo" aria-hidden="true">⌛</div>
+      <div>
+        <h1>Age Calculator</h1>
+        <div class="subtitle">Beautiful, precise, and instant. Enter your date of birth and get the full breakdown.</div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="card" role="region" aria-labelledby="calc-title">
+        <h2 id="calc-title" style="margin-top:0">Calculate your age</h2>
+        <div class="form-row">
+          <div>
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" max="" required />
+          </div>
+          <button id="calcBtn" aria-label="Calculate age">Calculate ▶</button>
+        </div>
+        <p class="note">We use your device's local time for accurate results.</p>
+        <div class="sparkle" aria-hidden="true"></div>
+      </div>
+
+      <aside class="aside card">
+        <h2 style="margin-top:0">Results</h2>
+        <div class="stats" id="results">
+          <div class="stat">
+            <h3>Exact Age</h3>
+            <div class="value" id="exact">—</div>
+          </div>
+          <div class="stat">
+            <h3>Total Time Alive</h3>
+            <div class="value" id="totals">—</div>
+          </div>
+          <div class="stat">
+            <h3>Next Birthday</h3>
+            <div class="value" id="next">—</div>
+          </div>
+          <div class="stat">
+            <h3>Zodiac (Western)</h3>
+            <div class="value" id="zodiac">—</div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <span class="pill">Made with ♥ for the web</span>
+    </footer>
+  </div>
+
+  <script>
+    // Set max attribute to today for DOB
+    const dobInput = document.getElementById('dob');
+    const today = new Date();
+    dobInput.max = new Date(today.getTime() - today.getTimezoneOffset()*60000).toISOString().split('T')[0];
+
+    // Sparkles generator
+    const sparkleRoot = document.querySelector('.sparkle');
+    function addSparkles(){
+      for (let i=0;i<24;i++){
+        const s = document.createElement('span');
+        s.style.left = Math.random()*100 + 'vw';
+        s.style.top = '-10vh';
+        s.style.animationDelay = (Math.random()*6)+'s';
+        s.style.animationDuration = (4 + Math.random()*6) + 's';
+        sparkleRoot.appendChild(s);
+      }
+    }
+    addSparkles();
+
+    function plural(n, w){ return n + ' ' + (n===1? w : w+'s'); }
+
+    function daysInMonth(year, month){
+      return new Date(year, month+1, 0).getDate();
+    }
+
+    function calcAge(from, to){
+      // Calculate exact age Y/M/D without rounding
+      let y = to.getFullYear() - from.getFullYear();
+      let m = to.getMonth() - from.getMonth();
+      let d = to.getDate() - from.getDate();
+
+      if (d < 0){
+        m -= 1;
+        d += daysInMonth(to.getFullYear(), (to.getMonth()-1+12)%12);
+      }
+      if (m < 0){
+        y -= 1;
+        m += 12;
+      }
+      return { years: y, months: m, days: d };
+    }
+
+    function formatExact(a){
+      return `${plural(a.years,'year')}, ${plural(a.months,'month')}, ${plural(a.days,'day')}`;
+    }
+
+    function diffInUnits(from, to){
+      const ms = to - from;
+      const seconds = Math.floor(ms/1000);
+      const minutes = Math.floor(seconds/60);
+      const hours = Math.floor(minutes/60);
+      const days = Math.floor(hours/24);
+      const weeks = Math.floor(days/7);
+      const monthsApprox = Math.floor(days/30.4375); // average month
+      const yearsApprox = Math.floor(days/365.2425); // tropical year
+      return { ms, seconds, minutes, hours, days, weeks, monthsApprox, yearsApprox };
+    }
+
+    const westernZodiacs = [
+      { sign: 'Capricorn', start: '12-22', end: '01-19' },
+      { sign: 'Aquarius',  start: '01-20', end: '02-18' },
+      { sign: 'Pisces',    start: '02-19', end: '03-20' },
+      { sign: 'Aries',     start: '03-21', end: '04-19' },
+      { sign: 'Taurus',    start: '04-20', end: '05-20' },
+      { sign: 'Gemini',    start: '05-21', end: '06-20' },
+      { sign: 'Cancer',    start: '06-21', end: '07-22' },
+      { sign: 'Leo',       start: '07-23', end: '08-22' },
+      { sign: 'Virgo',     start: '08-23', end: '09-22' },
+      { sign: 'Libra',     start: '09-23', end: '10-22' },
+      { sign: 'Scorpio',   start: '10-23', end: '11-21' },
+      { sign: 'Sagittarius', start: '11-22', end: '12-21' },
+    ];
+
+    function getWesternZodiac(date){
+      const m = date.getMonth()+1;
+      const d = date.getDate();
+      const md = (n)=> n.toString().padStart(2,'0');
+      const key = `${md(m)}-${md(d)}`;
+      for (const z of westernZodiacs){
+        if (z.start <= z.end){
+          if (key >= z.start && key <= z.end) return z.sign;
+        } else { // wraps year end
+          if (key >= z.start || key <= z.end) return z.sign;
+        }
+      }
+      return '—';
+    }
+
+    function nextBirthday(fromDOB, now){
+      const thisYear = new Date(now.getFullYear(), fromDOB.getMonth(), fromDOB.getDate());
+      let target = thisYear;
+      if (now > thisYear) target = new Date(now.getFullYear()+1, fromDOB.getMonth(), fromDOB.getDate());
+
+      // Handle Feb 29: move to Feb 29 in leap years, otherwise Feb 28
+      if (fromDOB.getMonth() === 1 && fromDOB.getDate() === 29){
+        const y = target.getFullYear();
+        const isLeap = (y%4===0 && (y%100!==0 || y%400===0));
+        target = new Date(y, 1, isLeap?29:28);
+      }
+
+      const diff = diffInUnits(now, target);
+      return { target, days: diff.days, hours: diff.hours % 24, minutes: diff.minutes % 60 };
+    }
+
+    function formatTotals(u){
+      return `${plural(u.days,'day')} • ${plural(u.hours,'hour')} • ${plural(u.minutes,'minute')} • ${plural(u.seconds,'second')}`;
+    }
+
+    const exactEl = document.getElementById('exact');
+    const totalsEl = document.getElementById('totals');
+    const nextEl = document.getElementById('next');
+    const zodiacEl = document.getElementById('zodiac');
+
+    function calculate(){
+      const raw = dobInput.value;
+      if(!raw){
+        alert('Please choose your date of birth.');
+        return;
+      }
+      const dob = new Date(raw + 'T00:00:00');
+      const now = new Date();
+      if (dob > now){ alert('Date of birth cannot be in the future.'); return; }
+
+      const age = calcAge(dob, now);
+      exactEl.textContent = formatExact(age);
+
+      const units = diffInUnits(dob, now);
+      totalsEl.textContent = `${units.days.toLocaleString()} days • ${units.hours.toLocaleString()} hours • ${units.minutes.toLocaleString()} minutes • ${units.seconds.toLocaleString()} seconds`;
+
+      const nb = nextBirthday(dob, now);
+      const dateStr = nb.target.toLocaleDateString(undefined, { month:'long', day:'numeric', year:'numeric' });
+      nextEl.textContent = `${dateStr} — in ${plural(nb.days,'day')}, ${plural(nb.hours,'hour')}, ${plural(nb.minutes,'minute')}`;
+
+      zodiacEl.textContent = getWesternZodiac(dob);
+
+      burst();
+    }
+
+    // Fun burst animation
+    function burst(){
+      const btn = document.getElementById('calcBtn');
+      const particles = 24;
+      for (let i=0;i<particles;i++){
+        const p = document.createElement('div');
+        p.style.position='fixed';
+        p.style.width=p.style.height='8px';
+        p.style.borderRadius='50%';
+        p.style.background = `hsl(${Math.random()*360}, 85%, 60%)`;
+        const rect = btn.getBoundingClientRect();
+        p.style.left = (rect.left + rect.width/2) + 'px';
+        p.style.top = (rect.top + rect.height/2) + 'px';
+        const ang = Math.random()*Math.PI*2;
+        const dist = 80 + Math.random()*140;
+        const tx = Math.cos(ang)*dist;
+        const ty = Math.sin(ang)*dist;
+        p.style.transform = `translate(-50%,-50%) translate(${tx}px,${ty}px)`;
+        p.style.transition = 'transform .8s cubic-bezier(.2,.8,.2,1), opacity .8s ease';
+        document.body.appendChild(p);
+        requestAnimationFrame(()=>{
+          p.style.transform = `translate(-50%,-50%) translate(${tx}px,${ty}px) scale(.7)`;
+          p.style.opacity = '0';
+        });
+        setTimeout(()=>p.remove(), 900);
+      }
+    }
+
+    document.getElementById('calcBtn').addEventListener('click', calculate);
+    dobInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); calculate(); }});
+  </script>
+</body>
+</html>
